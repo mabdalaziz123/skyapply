@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-sans bg-slate-50 text-brand-navy overflow-x-hidden;
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.btn-primary {
+  @apply px-8 py-3 bg-brand-red text-white rounded-full font-bold hover:bg-brand-red/90 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-brand-red/20;
+}
+
+.btn-secondary {
+  @apply px-8 py-3 bg-brand-navy text-white rounded-full font-bold hover:bg-brand-navy/90 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-brand-navy/20;
+}
+
+.btn-outline {
+  @apply px-8 py-3 border-2 border-brand-navy text-brand-navy rounded-full font-bold hover:bg-brand-navy hover:text-white transition-all transform hover:scale-105 active:scale-95;
+}
