@@ -1,0 +1,34 @@
+node_modules/
+dist/
+.vite/
+.cache/
+.env
+.env.*
+.DS_Store
+.idea/
+.vscode/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+logs/
+*.log
+public/locales/*.json
+*.tgz
+
+# TypeScript
+*.tsbuildinfo
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
+# JetBrains
+*.iml
+
+# Local env
+/local.env
+
+# Build output
+/build/
