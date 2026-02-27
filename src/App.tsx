@@ -9,6 +9,7 @@ import UniversitiesPage from './pages/UniversitiesPage';
 import BlogPage from './pages/BlogPage';
 import UniversityDetail from './pages/UniversityDetail';
 import BlogPost from './pages/BlogPost';
+import ProgramsPage from './pages/ProgramsPage';
 
 // Admin Imports
 import AdminLayout from './components/Admin/AdminLayout';
@@ -45,6 +46,7 @@ function App() {
                                     <Route path="/" element={<Home onOpenModal={openModal} />} />
                                     <Route path="/services" element={<ServicesPage onOpenModal={openModal} />} />
                                     <Route path="/universities" element={<UniversitiesPage onOpenModal={openModal} />} />
+                                    <Route path="/programs" element={<ProgramsPage onOpenModal={openModal} />} />
                                     <Route path="/blog" element={<BlogPage onOpenModal={openModal} />} />
                                     <Route path="/university/:id" element={<UniversityDetail onOpenModal={openModal} />} />
                                     <Route path="/blog/:id" element={<BlogPost onOpenModal={openModal} />} />

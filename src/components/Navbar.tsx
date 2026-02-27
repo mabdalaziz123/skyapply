@@ -25,6 +25,7 @@ const Navbar = ({ onOpenModal }: NavbarProps) => {
 
     const navLinks = [
         { name: 'الرئيسية', href: '/' },
+        { name: 'البرامج الدراسية', href: '/programs' },
         { name: 'خدماتنا', href: '/services' },
         { name: 'الجامعات', href: '/universities' },
         { name: 'المدونة', href: '/blog' },

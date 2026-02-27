@@ -235,6 +235,7 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                                             <thead>
                                                                                 <tr className="bg-slate-50 text-slate-500 text-sm">
                                                                                     <th className="p-5 font-bold">التخصص</th>
+                                                                                    <th className="p-5 font-bold">المرحلة</th>
                                                                                     <th className="p-5 font-bold">لغة الدراسة</th>
                                                                                     <th className="p-5 font-bold">
                                                                                         <span className="flex items-center justify-end gap-1"><Clock size={14} />المدة</span>
@@ -254,6 +255,9 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                                                         className="hover:bg-slate-50/60 transition-colors"
                                                                                     >
                                                                                         <td className="p-5 font-black text-brand-navy">{branch.name}</td>
+                                                                                        <td className="p-5">
+                                                                                            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">{branch.degree || 'بكالوريوس'}</span>
+                                                                                        </td>
                                                                                         <td className="p-5">
                                                                                             <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{branch.language}</span>
                                                                                         </td>

@@ -9,6 +9,7 @@ interface Branch {
     language: string;
     price: string;
     duration: string;
+    degree: string;
 }
 
 interface Faculty {
@@ -39,7 +40,7 @@ const ManageFaculties = () => {
     // Add Branch Form
     const [showBranchForm, setShowBranchForm] = useState<string | null>(null);
     const [branchData, setBranchData] = useState<Branch>({
-        name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات'
+        name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس'
     });
     const [isSubmittingBranch, setIsSubmittingBranch] = useState(false);
 
@@ -93,7 +94,7 @@ const ManageFaculties = () => {
                     ? { ...f, branches: [...(f.branches || []), newBranch] }
                     : f
             ));
-            setBranchData({ name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات' });
+            setBranchData({ name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' });
             setShowBranchForm(null);
         } catch (err: any) {
             alert('فشل الحفظ: ' + err.message);
@@ -263,6 +264,7 @@ const ManageFaculties = () => {
                                                                     <thead>
                                                                         <tr className="bg-slate-50 text-slate-500 text-sm">
                                                                             <th className="p-4 font-bold">حذف</th>
+                                                                            <th className="p-4 font-bold">المرحلة</th>
                                                                             <th className="p-4 font-bold">مدة الدراسة</th>
                                                                             <th className="p-4 font-bold">السعر السنوي</th>
                                                                             <th className="p-4 font-bold">لغة الدراسة</th>
@@ -280,6 +282,7 @@ const ManageFaculties = () => {
                                                                                         <Trash2 size={15} />
                                                                                     </button>
                                                                                 </td>
+                                                                                <td className="p-4"><span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs">{branch.degree || 'بكالوريوس'}</span></td>
                                                                                 <td className="p-4 text-slate-500">{branch.duration}</td>
                                                                                 <td className="p-4 text-brand-red font-black">{branch.price}</td>
                                                                                 <td className="p-4 text-slate-500">{branch.language}</td>
@@ -308,7 +311,7 @@ const ManageFaculties = () => {
                                                                     <h4 className="font-black text-brand-navy">إضافة فرع / تخصص</h4>
                                                                 </div>
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                    <div className="md:col-span-2 space-y-1">
+                                                                    <div className="space-y-1">
                                                                         <label className="text-sm font-bold text-slate-600">اسم الفرع / التخصص</label>
                                                                         <input
                                                                             required
@@ -318,6 +321,21 @@ const ManageFaculties = () => {
                                                                             placeholder="مثال: هندسة الحاسوب"
                                                                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none focus:border-brand-red transition-colors"
                                                                         />
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <label className="text-sm font-bold text-slate-600">المرحلة الدراسية</label>
+                                                                        <select
+                                                                            value={branchData.degree}
+                                                                            onChange={e => setBranchData({ ...branchData, degree: e.target.value })}
+                                                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none"
+                                                                        >
+                                                                            <option>بكالوريوس</option>
+                                                                            <option>ماجستير مع أطروحة</option>
+                                                                            <option>مدرسة مهنية</option>
+                                                                            <option>دكتوراه</option>
+                                                                            <option>ماجستير بدون أطروحة</option>
+                                                                            <option>دكتوراه متكاملة</option>
+                                                                        </select>
                                                                     </div>
                                                                     <div className="space-y-1">
                                                                         <label className="text-sm font-bold text-slate-600">لغة الدراسة</label>
@@ -370,7 +388,7 @@ const ManageFaculties = () => {
                                                             </motion.form>
                                                         ) : (
                                                             <button
-                                                                onClick={() => { setShowBranchForm(faculty.id); setBranchData({ name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات' }); }}
+                                                                onClick={() => { setShowBranchForm(faculty.id); setBranchData({ name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' }); }}
                                                                 className="flex items-center gap-2 text-brand-red font-bold text-sm hover:text-red-700 transition-colors mr-auto"
                                                             >
                                                                 <Plus size={16} /> إضافة فرع / تخصص

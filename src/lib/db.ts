@@ -58,7 +58,25 @@ export const db = {
         }
     },
     branches: {
-        async add(branch: { faculty_id: string; name: string; language: string; price: string; duration: string }) {
+        async getAllWithDetails() {
+            const { data, error } = await supabase
+                .from('branches')
+                .select(`
+                    *,
+                    colleges (
+                        name,
+                        universities (
+                            id,
+                            name,
+                            country
+                        )
+                    )
+                `);
+
+            if (error) throw error;
+            return data;
+        },
+        async add(branch: { faculty_id: string; name: string; language: string; price: string; duration: string; degree: string }) {
             const { data, error } = await supabase
                 .from('branches')
                 .insert(branch)
