@@ -6,6 +6,8 @@ import { db } from '../../lib/db';
 interface Branch {
     id?: string;
     name: string;
+    name_en: string;
+    name_tr: string;
     language: string;
     price: string;
     duration: string;
@@ -16,6 +18,8 @@ interface Faculty {
     id: string;
     university_id: string;
     name: string;
+    name_en: string;
+    name_tr: string;
     branches?: Branch[];
 }
 
@@ -25,22 +29,40 @@ interface University {
     country: string;
 }
 
+// Language Tab helper
+const LangTabs = ({ active, onChange }: { active: string; onChange: (l: string) => void }) => (
+    <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit mb-4">
+        {['ar', 'en', 'tr'].map(l => (
+            <button
+                key={l}
+                type="button"
+                onClick={() => onChange(l)}
+                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${active === l ? 'bg-white shadow text-brand-navy' : 'text-slate-500 hover:text-brand-navy'}`}
+            >
+                {l === 'ar' ? '🇸🇦 العربية' : l === 'en' ? '🇬🇧 English' : '🇹🇷 Türkçe'}
+            </button>
+        ))}
+    </div>
+);
+
 const ManageFaculties = () => {
     const [universities, setUniversities] = useState<University[]>([]);
     const [selectedUni, setSelectedUni] = useState<string>('');
     const [faculties, setFaculties] = useState<Faculty[]>([]);
     const [loading, setLoading] = useState(false);
     const [expandedFaculty, setExpandedFaculty] = useState<string | null>(null);
+    const [activeLangFaculty, setActiveLangFaculty] = useState('ar');
+    const [activeLangBranch, setActiveLangBranch] = useState('ar');
 
     // Add Faculty Form
     const [showFacultyForm, setShowFacultyForm] = useState(false);
-    const [facultyName, setFacultyName] = useState('');
+    const [facultyData, setFacultyData] = useState({ name: '', name_en: '', name_tr: '' });
     const [isSubmittingFaculty, setIsSubmittingFaculty] = useState(false);
 
     // Add Branch Form
     const [showBranchForm, setShowBranchForm] = useState<string | null>(null);
     const [branchData, setBranchData] = useState<Branch>({
-        name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس'
+        name: '', name_en: '', name_tr: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس'
     });
     const [isSubmittingBranch, setIsSubmittingBranch] = useState(false);
 
@@ -59,12 +81,12 @@ const ManageFaculties = () => {
 
     const handleAddFaculty = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedUni || !facultyName.trim()) return;
+        if (!selectedUni || !facultyData.name.trim()) return;
         setIsSubmittingFaculty(true);
         try {
-            const newFaculty = await db.faculties.add({ university_id: selectedUni, name: facultyName.trim() });
+            const newFaculty = await db.faculties.add({ university_id: selectedUni, ...facultyData });
             setFaculties(prev => [...prev, { ...newFaculty, branches: [] }]);
-            setFacultyName('');
+            setFacultyData({ name: '', name_en: '', name_tr: '' });
             setShowFacultyForm(false);
         } catch (err: any) {
             alert('فشل الحفظ: ' + err.message);
@@ -94,7 +116,7 @@ const ManageFaculties = () => {
                     ? { ...f, branches: [...(f.branches || []), newBranch] }
                     : f
             ));
-            setBranchData({ name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' });
+            setBranchData({ name: '', name_en: '', name_tr: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' });
             setShowBranchForm(null);
         } catch (err: any) {
             alert('فشل الحفظ: ' + err.message);
@@ -115,6 +137,9 @@ const ManageFaculties = () => {
             alert('فشل الحذف: ' + err.message);
         }
     };
+
+    const facultyNameField = activeLangFaculty === 'ar' ? 'name' : activeLangFaculty === 'en' ? 'name_en' : 'name_tr';
+    const branchNameField = activeLangBranch === 'ar' ? 'name' : activeLangBranch === 'en' ? 'name_en' : 'name_tr';
 
     return (
         <div className="space-y-8 text-right font-sans">
@@ -179,6 +204,9 @@ const ManageFaculties = () => {
                                         </button>
                                         <h3 className="font-black text-lg">إضافة كلية جديدة</h3>
                                     </div>
+
+                                    <LangTabs active={activeLangFaculty} onChange={setActiveLangFaculty} />
+
                                     <div className="flex gap-3">
                                         <button
                                             type="submit"
@@ -189,11 +217,11 @@ const ManageFaculties = () => {
                                             حفظ
                                         </button>
                                         <input
-                                            required
+                                            required={activeLangFaculty === 'ar'}
                                             type="text"
-                                            value={facultyName}
-                                            onChange={e => setFacultyName(e.target.value)}
-                                            placeholder="مثال: كلية الهندسة"
+                                            value={(facultyData as any)[facultyNameField]}
+                                            onChange={e => setFacultyData({ ...facultyData, [facultyNameField]: e.target.value })}
+                                            placeholder={activeLangFaculty === 'en' ? 'Faculty Name' : activeLangFaculty === 'tr' ? 'Fakülte Adı' : 'اسم الكلية'}
                                             className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-right font-bold placeholder:text-white/40 outline-none focus:border-brand-red transition-colors"
                                         />
                                     </div>
@@ -240,7 +268,10 @@ const ManageFaculties = () => {
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <h3 className="font-black text-brand-navy text-lg">{faculty.name}</h3>
+                                                <div>
+                                                    <h3 className="font-black text-brand-navy text-lg">{faculty.name}</h3>
+                                                    {faculty.name_en && <p className="text-xs text-slate-400 font-bold">{faculty.name_en}</p>}
+                                                </div>
                                                 <div className="w-10 h-10 bg-brand-red/10 text-brand-red rounded-2xl flex items-center justify-center">
                                                     <BookOpen size={20} />
                                                 </div>
@@ -286,7 +317,10 @@ const ManageFaculties = () => {
                                                                                 <td className="p-4 text-slate-500">{branch.duration}</td>
                                                                                 <td className="p-4 text-brand-red font-black">{branch.price}</td>
                                                                                 <td className="p-4 text-slate-500">{branch.language}</td>
-                                                                                <td className="p-4 font-black">{branch.name}</td>
+                                                                                <td className="p-4 font-black">
+                                                                                    <p>{branch.name}</p>
+                                                                                    {branch.name_en && <p className="text-[10px] text-slate-400">{branch.name_en}</p>}
+                                                                                </td>
                                                                             </tr>
                                                                         ))}
                                                                     </tbody>
@@ -310,15 +344,20 @@ const ManageFaculties = () => {
                                                                     </button>
                                                                     <h4 className="font-black text-brand-navy">إضافة فرع / تخصص</h4>
                                                                 </div>
+
+                                                                <LangTabs active={activeLangBranch} onChange={setActiveLangBranch} />
+
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                     <div className="space-y-1">
-                                                                        <label className="text-sm font-bold text-slate-600">اسم الفرع / التخصص</label>
+                                                                        <label className="text-sm font-bold text-slate-600">
+                                                                            اسم الفرع {activeLangBranch === 'en' ? '(EN)' : activeLangBranch === 'tr' ? '(TR)' : '(AR)'}
+                                                                        </label>
                                                                         <input
-                                                                            required
+                                                                            required={activeLangBranch === 'ar'}
                                                                             type="text"
-                                                                            value={branchData.name}
-                                                                            onChange={e => setBranchData({ ...branchData, name: e.target.value })}
-                                                                            placeholder="مثال: هندسة الحاسوب"
+                                                                            value={(branchData as any)[branchNameField]}
+                                                                            onChange={e => setBranchData({ ...branchData, [branchNameField]: e.target.value })}
+                                                                            placeholder={activeLangBranch === 'en' ? 'Computer Eng.' : activeLangBranch === 'tr' ? 'Bilgisayar Müh.' : 'هندسة الحاسوب'}
                                                                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none focus:border-brand-red transition-colors"
                                                                         />
                                                                     </div>
@@ -388,7 +427,7 @@ const ManageFaculties = () => {
                                                             </motion.form>
                                                         ) : (
                                                             <button
-                                                                onClick={() => { setShowBranchForm(faculty.id); setBranchData({ name: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' }); }}
+                                                                onClick={() => { setShowBranchForm(faculty.id); setBranchData({ name: '', name_en: '', name_tr: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' }); }}
                                                                 className="flex items-center gap-2 text-brand-red font-bold text-sm hover:text-red-700 transition-colors mr-auto"
                                                             >
                                                                 <Plus size={16} /> إضافة فرع / تخصص

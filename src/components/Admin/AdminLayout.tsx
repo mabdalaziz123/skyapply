@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
     LayoutDashboard,
     GraduationCap,
@@ -10,18 +11,27 @@ import {
     X,
     Bell,
     Search,
-    BookOpen
+    BookOpen,
+    Users
 } from 'lucide-react';
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const location = useLocation();
+    const { logout, username, role } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/admin/login', { replace: true });
+    };
 
     const menuItems = [
         { name: 'لوحة التحكم', icon: LayoutDashboard, path: '/admin' },
         { name: 'إدارة الجامعات', icon: GraduationCap, path: '/admin/universities' },
         { name: 'الكليات والأفرع', icon: BookOpen, path: '/admin/faculties' },
         { name: 'إدارة المدونة', icon: FileText, path: '/admin/blog' },
+        ...(role === 'admin' ? [{ name: 'إدارة المستخدمين', icon: Users, path: '/admin/users' }] : []),
         { name: 'الإعدادات', icon: Settings, path: '/admin/settings' },
     ];
 
@@ -66,7 +76,7 @@ const AdminLayout = () => {
                 </nav>
 
                 <div className="absolute bottom-0 w-full p-4 border-t border-white/10">
-                    <button className="flex items-center gap-4 px-4 py-3 w-full text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                    <button onClick={handleLogout} className="flex items-center gap-4 px-4 py-3 w-full text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all">
                         <LogOut size={22} />
                         <span className={`font-bold ${!isSidebarOpen && 'md:hidden'}`}>تسجيل الخروج</span>
                     </button>
@@ -100,7 +110,7 @@ const AdminLayout = () => {
                         <div className="h-10 w-px bg-slate-200"></div>
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-black text-brand-navy leading-none">مُدير النظام</p>
+                                <p className="text-sm font-black text-brand-navy leading-none">{username || 'مُدير النظام'}</p>
                                 <p className="text-xs text-slate-400 mt-1">administrator</p>
                             </div>
                             <div className="w-10 h-10 bg-brand-red/10 rounded-xl flex items-center justify-center text-brand-red font-black border border-brand-red/20">

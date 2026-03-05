@@ -1,142 +1,168 @@
-import { supabase } from './supabase';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const db = {
     universities: {
         async getAll() {
-            const { data, error } = await supabase
-                .from('universities')
-                .select('*');
-            if (error) throw error;
-            return data.sort((a: any, b: any) =>
-                new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-            );
+            const response = await fetch(`${API_URL}/universities`);
+            if (!response.ok) throw new Error('Failed to fetch universities');
+            return response.json();
         },
         async getById(id: string) {
-            const { data, error } = await supabase
-                .from('universities')
-                .select('*, colleges(*, branches(*))')
-                .eq('id', id)
-                .single();
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/universities/${id}`);
+            if (!response.ok) throw new Error('Failed to fetch university');
+            return response.json();
         },
         async add(university: any) {
-            const { data, error } = await supabase
-                .from('universities')
-                .insert(university)
-                .select()
-                .single();
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/universities`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                },
+                body: JSON.stringify(university)
+            });
+            if (!response.ok) throw new Error('Failed to add university');
+            return response.json();
+        },
+        async update(id: string, university: any) {
+            const response = await fetch(`${API_URL}/universities/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                },
+                body: JSON.stringify(university)
+            });
+            if (!response.ok) throw new Error('Failed to update university');
+            return response.json();
+        },
+        async delete(id: string) {
+            const response = await fetch(`${API_URL}/universities/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to delete university');
         }
     },
     faculties: {
         async getByUniversity(universityId: string) {
-            const { data, error } = await supabase
-                .from('colleges')
-                .select('*, branches(*)')
-                .eq('university_id', universityId)
-                .order('created_at', { ascending: true });
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/faculties/${universityId}`);
+            if (!response.ok) throw new Error('Failed to fetch faculties');
+            return response.json();
         },
         async add(faculty: { university_id: string; name: string }) {
-            const { data, error } = await supabase
-                .from('colleges')
-                .insert(faculty)
-                .select()
-                .single();
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/faculties`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                },
+                body: JSON.stringify(faculty)
+            });
+            if (!response.ok) throw new Error('Failed to add faculty');
+            return response.json();
         },
         async delete(id: string) {
-            const { error } = await supabase
-                .from('colleges')
-                .delete()
-                .eq('id', id);
-            if (error) throw error;
+            const response = await fetch(`${API_URL}/faculties/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to delete faculty');
         }
     },
     branches: {
         async getAllWithDetails() {
-            const { data, error } = await supabase
-                .from('branches')
-                .select(`
-                    *,
-                    colleges (
-                        name,
-                        universities (
-                            id,
-                            name,
-                            country
-                        )
-                    )
-                `);
-
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/branches`);
+            if (!response.ok) throw new Error('Failed to fetch branches');
+            return response.json();
         },
         async add(branch: { faculty_id: string; name: string; language: string; price: string; duration: string; degree: string }) {
-            const { data, error } = await supabase
-                .from('branches')
-                .insert(branch)
-                .select()
-                .single();
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/branches`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                },
+                body: JSON.stringify(branch)
+            });
+            if (!response.ok) throw new Error('Failed to add branch');
+            return response.json();
         },
         async delete(id: string) {
-            const { error } = await supabase
-                .from('branches')
-                .delete()
-                .eq('id', id);
-            if (error) throw error;
+            const response = await fetch(`${API_URL}/branches/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to delete branch');
         }
     },
     blog: {
         async getAll() {
-            const { data, error } = await supabase
-                .from('blog_posts')
-                .select('*')
-                .order('created_at', { ascending: false });
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/blog`);
+            if (!response.ok) throw new Error('Failed to fetch blog posts');
+            return response.json();
         },
         async getById(id: string) {
-            const { data, error } = await supabase
-                .from('blog_posts')
-                .select('*')
-                .eq('id', id)
-                .single();
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/blog/${id}`);
+            if (!response.ok) throw new Error('Failed to fetch blog post');
+            return response.json();
         },
         async add(post: any) {
-            const { data, error } = await supabase
-                .from('blog_posts')
-                .insert(post)
-                .select()
-                .single();
-            if (error) throw error;
-            return data;
+            const response = await fetch(`${API_URL}/blog`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                },
+                body: JSON.stringify(post)
+            });
+            if (!response.ok) throw new Error('Failed to add blog post');
+            return response.json();
+        },
+        async update(id: string, post: any) {
+            const response = await fetch(`${API_URL}/blog/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                },
+                body: JSON.stringify(post)
+            });
+            if (!response.ok) throw new Error('Failed to update blog post');
+            return response.json();
+        },
+        async delete(id: string) {
+            const response = await fetch(`${API_URL}/blog/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                }
+            });
+            if (!response.ok) throw new Error('Failed to delete blog post');
         }
     },
     storage: {
-        async uploadImage(file: File, bucket: string = 'images') {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const filePath = `${fileName}`;
+        async uploadImage(file: File, _bucket: string = 'images') {
+            const formData = new FormData();
+            formData.append('image', file);
 
-            const { error: uploadError } = await supabase.storage
-                .from(bucket)
-                .upload(filePath, file);
+            const response = await fetch(`${API_URL}/upload`, {
+                method: 'POST',
+                body: formData
+            });
 
-            if (uploadError) throw uploadError;
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to upload image');
+            }
 
-            const { data } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(filePath);
-
+            const data = await response.json();
             return data.publicUrl;
         }
     }

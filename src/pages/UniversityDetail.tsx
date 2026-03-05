@@ -18,12 +18,15 @@ import {
 } from 'lucide-react';
 import CTA from '../components/CTA';
 import { db } from '../lib/db';
+import DOMPurify from 'dompurify';
+import { useLanguage } from '../context/LanguageContext';
 
 const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
     const { id } = useParams<{ id: string }>();
     const [university, setUniversity] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [openFaculty, setOpenFaculty] = useState<number | null>(null);
+    const { t, getField, dir } = useLanguage();
 
     useEffect(() => {
         const fetchUniversity = async () => {
@@ -44,7 +47,7 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
         return (
             <div className="pt-40 pb-20 flex flex-col items-center justify-center text-brand-navy">
                 <Loader2 className="animate-spin mb-4" size={48} />
-                <p className="text-xl font-black">جاري تحميل تفاصيل الجامعة...</p>
+                <p className="text-xl font-black">{t('uni_loading')}</p>
             </div>
         );
     }
@@ -52,46 +55,51 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
     if (!university) {
         return (
             <div className="pt-40 pb-20 text-center text-brand-navy">
-                <h2 className="text-3xl font-black">عذراً، لم يتم العثور على الجامعة</h2>
-                <p className="mt-4 text-slate-500 font-bold">قد يكون الرابط غير صحيح أو تم مسح الجامعة.</p>
+                <h2 className="text-3xl font-black">{t('uni_not_found')}</h2>
+                <p className="mt-4 text-slate-500 font-bold">{t('uni_not_found_sub')}</p>
             </div>
         );
     }
 
     const faculties = university.colleges || [];
+    const uniName = getField(university, 'name');
+    const uniDesc = getField(university, 'description');
+    const uniCity = getField(university, 'city');
+    const uniCountry = getField(university, 'country');
+    const uniType = getField(university, 'type');
 
     return (
-        <div className="pt-24 min-h-screen bg-slate-50 font-sans">
+        <div className="pt-24 min-h-screen bg-slate-50 font-sans" dir={dir}>
             {/* Hero Header */}
             <section className="relative h-[400px] md:h-[500px] overflow-hidden">
-                <img src={university.image} className="absolute inset-0 w-full h-full object-cover" alt={university.name} />
+                <img src={university.image} className="absolute inset-0 w-full h-full object-cover" alt={uniName} />
                 <div className="absolute inset-0 bg-brand-navy/70 backdrop-blur-[2px]"></div>
-                <div className="container mx-auto px-6 relative h-full flex flex-col justify-end pb-16 text-right text-white">
+                <div className={`container mx-auto px-6 relative h-full flex flex-col justify-end pb-16 text-white ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
-                        <div className="flex items-center justify-end gap-2 mb-4">
-                            <span className="bg-brand-red px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg shadow-brand-red/20">{university.country}</span>
-                            <span className="bg-white/20 backdrop-blur px-4 py-1 rounded-full text-sm font-bold border border-white/10">{university.city}</span>
+                        <div className={`flex items-center gap-2 mb-4 ${dir === 'rtl' ? 'justify-end' : 'justify-start'}`}>
+                            <span className="bg-brand-red px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg shadow-brand-red/20">{uniCountry}</span>
+                            <span className="bg-white/20 backdrop-blur px-4 py-1 rounded-full text-sm font-bold border border-white/10">{uniCity}</span>
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">{university.name}</h1>
-                        <div className="flex flex-wrap justify-end gap-6 md:gap-12">
+                        <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight text-start">{uniName}</h1>
+                        <div className={`flex flex-wrap gap-6 md:gap-12 ${dir === 'rtl' ? 'justify-end' : 'justify-start'}`}>
                             <div className="flex items-center gap-2">
-                                <div className="text-right">
-                                    <p className="text-white/60 text-xs font-bold">التصنيف</p>
-                                    <p className="font-extrabold text-lg">{university.ranking || 'غير متوفر'}</p>
+                                <div className={dir === 'rtl' ? 'text-right' : 'text-left'}>
+                                    <p className="text-white/60 text-xs font-bold">{t('uni_ranking')}</p>
+                                    <p className="font-extrabold text-lg">{university.ranking || t('not_available')}</p>
                                 </div>
                                 <Star className="text-yellow-400 fill-yellow-400" size={24} />
                             </div>
-                            <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-                                <div className="text-right">
-                                    <p className="text-white/60 text-xs font-bold">عدد الطلاب</p>
-                                    <p className="font-extrabold text-lg">{university.students || 'غير متوفر'}</p>
+                            <div className={`flex items-center gap-2 ${dir === 'rtl' ? 'border-r border-white/20 pr-6' : 'border-l border-white/20 pl-6'}`}>
+                                <div className={dir === 'rtl' ? 'text-right' : 'text-left'}>
+                                    <p className="text-white/60 text-xs font-bold">{t('uni_students')}</p>
+                                    <p className="font-extrabold text-lg">{university.students || t('not_available')}</p>
                                 </div>
                                 <Users className="text-blue-400" size={24} />
                             </div>
-                            <div className="flex items-center gap-2 border-r border-white/20 pr-6">
-                                <div className="text-right">
-                                    <p className="text-white/60 text-xs font-bold">نوع الجامعة</p>
-                                    <p className="font-extrabold text-lg">{university.type || 'خاصة'}</p>
+                            <div className={`flex items-center gap-2 ${dir === 'rtl' ? 'border-r border-white/20 pr-6' : 'border-l border-white/20 pl-6'}`}>
+                                <div className={dir === 'rtl' ? 'text-right' : 'text-left'}>
+                                    <p className="text-white/60 text-xs font-bold">{t('uni_type')}</p>
+                                    <p className="font-extrabold text-lg">{uniType || t('private_university')}</p>
                                 </div>
                                 <Building2 className="text-green-400" size={24} />
                             </div>
@@ -104,70 +112,70 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
             <div className="container mx-auto px-6 py-16">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* Sidebar */}
-                    <div className="lg:col-span-1 order-2 lg:order-1">
+                    <div className={`lg:col-span-1 ${dir === 'rtl' ? 'order-2 lg:order-1' : 'order-2 lg:order-2'}`}>
                         <div className="bg-white rounded-[32px] p-8 shadow-2xl shadow-slate-200/50 border border-slate-100 sticky top-32">
-                            <h3 className="text-xl font-black text-brand-navy mb-8 text-right border-b pb-4">معلومات سريعة</h3>
+                            <h3 className={`text-xl font-black text-brand-navy mb-8 border-b pb-4 text-start`}>{t('uni_quick_info')}</h3>
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <span className="font-extrabold text-brand-navy">{university.founded || '-'}</span>
                                     <div className="flex items-center gap-3 text-slate-500 font-bold text-sm">
-                                        <span>سنة التأسيس</span>
+                                        <span>{t('uni_founded')}</span>
                                         <Calendar size={20} className="text-brand-red" />
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="font-extrabold text-brand-navy">الإنجليزية / التركية</span>
+                                    <span className="font-extrabold text-brand-navy">EN / TR</span>
                                     <div className="flex items-center gap-3 text-slate-500 font-bold text-sm">
-                                        <span>لغات الدراسة</span>
+                                        <span>{t('uni_languages')}</span>
                                         <Globe size={20} className="text-brand-red" />
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="font-extrabold text-green-600">مجاني عبرنا</span>
+                                    <span className="font-extrabold text-green-600">{t('uni_apply_fee_free')}</span>
                                     <div className="flex items-center gap-3 text-slate-500 font-bold text-sm">
-                                        <span>رسوم التقديم</span>
+                                        <span>{t('uni_apply_fee')}</span>
                                         <ShieldCheck size={20} className="text-brand-red" />
                                     </div>
                                 </div>
                                 {faculties.length > 0 && (
                                     <div className="flex items-center justify-between">
-                                        <span className="font-extrabold text-brand-navy">{faculties.length} كليات</span>
+                                        <span className="font-extrabold text-brand-navy">{faculties.length} {t('uni_colleges_count')}</span>
                                         <div className="flex items-center gap-3 text-slate-500 font-bold text-sm">
-                                            <span>عدد الكليات</span>
+                                            <span>{t('uni_colleges_count')}</span>
                                             <GraduationCap size={20} className="text-brand-red" />
                                         </div>
                                     </div>
                                 )}
                             </div>
-                            <div className="mt-10 p-6 bg-slate-50 rounded-3xl text-right border border-slate-100">
-                                <p className="text-sm font-black text-brand-navy mb-4">هل ترغب في الحصول على قبولك؟</p>
+                            <div className={`mt-10 p-6 bg-slate-50 rounded-3xl border border-slate-100 text-start`}>
+                                <p className="text-sm font-black text-brand-navy mb-4">{t('uni_get_admission')}</p>
                                 <button
                                     onClick={onOpenModal}
                                     className="btn-primary w-full py-4 text-lg shadow-xl shadow-brand-red/30 active:scale-95 transition-transform"
                                 >
-                                    احصل على قبول مجاني
+                                    {t('uni_free_admission')}
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     {/* Main Details */}
-                    <div className="lg:col-span-2 order-1 lg:order-2 text-right space-y-14">
+                    <div className={`lg:col-span-2 ${dir === 'rtl' ? 'order-1 lg:order-2' : 'order-1 lg:order-1'} space-y-14 text-start`}>
                         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-                            <h2 className="text-3xl font-black text-brand-navy mb-6 flex items-center justify-end gap-3">
-                                نبذة عن الجامعة <BookOpen className="text-brand-red" />
+                            <h2 className={`text-3xl font-black text-brand-navy mb-6 flex items-center gap-3 text-start`}>
+                                {t('uni_about')} <BookOpen className="text-brand-red" />
                             </h2>
-                            <p className="text-lg text-slate-600 leading-relaxed font-medium">{university.description}</p>
+                            <div className="text-lg text-slate-600 leading-relaxed font-medium text-justify [&>*]:text-start" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(uniDesc || '') }} />
                         </motion.div>
 
                         {university.features && university.features.length > 0 && (
                             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-                                <h2 className="text-3xl font-black text-brand-navy mb-8 flex items-center justify-end gap-3">
-                                    مميزات الدراسة في الجامعة <CheckCircle2 className="text-brand-red" />
+                                <h2 className={`text-3xl font-black text-brand-navy mb-8 flex items-center gap-3 text-start`}>
+                                    {t('uni_features')} <CheckCircle2 className="text-brand-red" />
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {university.features.map((feature: string, idx: number) => (
-                                        <div key={idx} className="flex items-center justify-end gap-3 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 hover:border-brand-red/30 transition-colors">
+                                        <div key={idx} className={`flex items-center gap-3 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 hover:border-brand-red/30 transition-colors ${dir === 'rtl' ? 'justify-end' : 'justify-start'}`}>
                                             <span className="font-bold text-slate-700">{feature}</span>
                                             <div className="w-8 h-8 rounded-full bg-brand-red/10 text-brand-red flex items-center justify-center shrink-0">
                                                 <CheckCircle2 size={18} />
@@ -178,16 +186,17 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                             </motion.div>
                         )}
 
-                        {/* ===== Faculties Accordion ===== */}
+                        {/* Faculties Accordion */}
                         {faculties.length > 0 && (
                             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-                                <h2 className="text-3xl font-black text-brand-navy mb-8 flex items-center justify-end gap-3">
-                                    الكليات والتخصصات <GraduationCap className="text-brand-red" />
+                                <h2 className={`text-3xl font-black text-brand-navy mb-8 flex items-center gap-3 text-start`}>
+                                    {t('uni_faculties')} <GraduationCap className="text-brand-red" />
                                 </h2>
                                 <div className="space-y-4">
                                     {faculties.map((faculty: any, idx: number) => {
                                         const branches = faculty.branches || [];
                                         const isOpen = openFaculty === idx;
+                                        const facultyName = getField(faculty, 'name');
                                         return (
                                             <motion.div
                                                 key={faculty.id}
@@ -200,18 +209,18 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                             >
                                                 <button
                                                     onClick={() => setOpenFaculty(isOpen ? null : idx)}
-                                                    className="w-full flex items-center justify-between p-6 text-right group"
+                                                    className="w-full flex items-center justify-between p-6 text-start group"
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
                                                             <ChevronDown size={20} className={`transition-colors ${isOpen ? 'text-brand-red' : 'text-slate-400 group-hover:text-brand-navy'}`} />
                                                         </motion.div>
                                                         <span className={`text-xs font-bold px-3 py-1 rounded-full transition-colors ${isOpen ? 'bg-brand-red/10 text-brand-red' : 'bg-slate-100 text-slate-500'}`}>
-                                                            {branches.length} تخصص
+                                                            {branches.length} {t('uni_specializations')}
                                                         </span>
                                                     </div>
-                                                    <div className="flex items-center gap-4">
-                                                        <h3 className="font-black text-brand-navy text-lg group-hover:text-brand-red transition-colors">{faculty.name}</h3>
+                                                    <div className={`flex items-center gap-4`}>
+                                                        <h3 className="font-black text-brand-navy text-lg group-hover:text-brand-red transition-colors">{facultyName}</h3>
                                                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-colors ${isOpen ? 'bg-brand-red text-white' : 'bg-brand-red/10 text-brand-red'}`}>
                                                             <GraduationCap size={22} />
                                                         </div>
@@ -231,17 +240,17 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                             <div className="border-t border-slate-100">
                                                                 {branches.length > 0 ? (
                                                                     <div className="overflow-x-auto">
-                                                                        <table className="w-full text-right border-collapse">
+                                                                        <table className={`w-full border-collapse ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
                                                                             <thead>
                                                                                 <tr className="bg-slate-50 text-slate-500 text-sm">
-                                                                                    <th className="p-5 font-bold">التخصص</th>
-                                                                                    <th className="p-5 font-bold">المرحلة</th>
-                                                                                    <th className="p-5 font-bold">لغة الدراسة</th>
+                                                                                    <th className="p-5 font-bold">{t('uni_specialization')}</th>
+                                                                                    <th className="p-5 font-bold">{t('uni_stage')}</th>
+                                                                                    <th className="p-5 font-bold">{t('uni_study_lang')}</th>
                                                                                     <th className="p-5 font-bold">
-                                                                                        <span className="flex items-center justify-end gap-1"><Clock size={14} />المدة</span>
+                                                                                        <span className="flex items-center gap-1"><Clock size={14} />{t('uni_duration')}</span>
                                                                                     </th>
                                                                                     <th className="p-5 font-bold">
-                                                                                        <span className="flex items-center justify-end gap-1"><DollarSign size={14} />السعر السنوي</span>
+                                                                                        <span className="flex items-center gap-1"><DollarSign size={14} />{t('uni_annual_price')}</span>
                                                                                     </th>
                                                                                 </tr>
                                                                             </thead>
@@ -254,9 +263,9 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                                                         transition={{ delay: bIdx * 0.05 }}
                                                                                         className="hover:bg-slate-50/60 transition-colors"
                                                                                     >
-                                                                                        <td className="p-5 font-black text-brand-navy">{branch.name}</td>
+                                                                                        <td className="p-5 font-black text-brand-navy">{getField(branch, 'name')}</td>
                                                                                         <td className="p-5">
-                                                                                            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">{branch.degree || 'بكالوريوس'}</span>
+                                                                                            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">{branch.degree || t('bachelor')}</span>
                                                                                         </td>
                                                                                         <td className="p-5">
                                                                                             <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{branch.language}</span>
@@ -273,15 +282,15 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                                 ) : (
                                                                     <div className="py-8 text-center text-slate-400 font-bold">
                                                                         <GraduationCap size={36} className="mx-auto mb-2 text-slate-300" />
-                                                                        لا توجد تخصصات مضافة لهذه الكلية بعد
+                                                                        {t('uni_no_branches')}
                                                                     </div>
                                                                 )}
-                                                                <div className="p-5 border-t border-slate-50 text-left">
+                                                                <div className={`p-5 border-t border-slate-50 ${dir === 'rtl' ? 'text-left' : 'text-right'}`}>
                                                                     <button
                                                                         onClick={onOpenModal}
                                                                         className="text-brand-red font-bold text-sm hover:text-red-700 transition-colors"
                                                                     >
-                                                                        تقدم للقبول في هذه الكلية ←
+                                                                        {t('uni_apply_faculty')}
                                                                     </button>
                                                                 </div>
                                                             </div>

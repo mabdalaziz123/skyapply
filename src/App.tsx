@@ -17,6 +17,11 @@ import DashboardHome from './pages/Admin/DashboardHome';
 import ManageUniversities from './pages/Admin/ManageUniversities';
 import ManageBlog from './pages/Admin/ManageBlog';
 import ManageFaculties from './pages/Admin/ManageFaculties';
+import LoginPage from './pages/Admin/LoginPage';
+import ProtectedRoute from './components/Admin/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+import { LanguageProvider } from './context/LanguageContext';
+import ManageUsers from './pages/Admin/ManageUsers';
 
 function App() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,41 +30,51 @@ function App() {
     const closeModal = () => setIsModalOpen(false);
 
     return (
-        <Router>
-            <div className="min-h-screen">
-                <Routes>
-                    {/* Admin Routes */}
-                    <Route path="/admin" element={<AdminLayout />}>
-                        <Route index element={<DashboardHome />} />
-                        <Route path="universities" element={<ManageUniversities />} />
-                        <Route path="blog" element={<ManageBlog />} />
-                        <Route path="faculties" element={<ManageFaculties />} />
-                        <Route path="settings" element={<div className="text-right p-8">قريباً...</div>} />
-                    </Route>
+        <LanguageProvider>
+            <AuthProvider>
+                <Router>
+                    <div className="min-h-screen">
+                        <Routes>
+                            {/* Admin Login (public) */}
+                            <Route path="/admin/login" element={<LoginPage />} />
 
-                    {/* Public Routes */}
-                    <Route path="/*" element={
-                        <>
-                            <Navbar onOpenModal={openModal} />
-                            <main>
-                                <Routes>
-                                    <Route path="/" element={<Home onOpenModal={openModal} />} />
-                                    <Route path="/services" element={<ServicesPage onOpenModal={openModal} />} />
-                                    <Route path="/universities" element={<UniversitiesPage onOpenModal={openModal} />} />
-                                    <Route path="/programs" element={<ProgramsPage onOpenModal={openModal} />} />
-                                    <Route path="/blog" element={<BlogPage onOpenModal={openModal} />} />
-                                    <Route path="/university/:id" element={<UniversityDetail onOpenModal={openModal} />} />
-                                    <Route path="/blog/:id" element={<BlogPost onOpenModal={openModal} />} />
-                                </Routes>
-                            </main>
-                            <Footer />
-                        </>
-                    } />
-                </Routes>
+                            {/* Admin Routes (protected) */}
+                            <Route element={<ProtectedRoute />}>
+                                <Route path="/admin" element={<AdminLayout />}>
+                                    <Route index element={<DashboardHome />} />
+                                    <Route path="universities" element={<ManageUniversities />} />
+                                    <Route path="blog" element={<ManageBlog />} />
+                                    <Route path="faculties" element={<ManageFaculties />} />
+                                    <Route path="users" element={<ManageUsers />} />
+                                    <Route path="settings" element={<div className="text-right p-8">قريباً...</div>} />
+                                </Route>
+                            </Route>
 
-                <ConsultationModal isOpen={isModalOpen} onClose={closeModal} />
-            </div>
-        </Router>
+                            {/* Public Routes */}
+                            <Route path="/*" element={
+                                <>
+                                    <Navbar onOpenModal={openModal} />
+                                    <main>
+                                        <Routes>
+                                            <Route path="/" element={<Home onOpenModal={openModal} />} />
+                                            <Route path="/services" element={<ServicesPage onOpenModal={openModal} />} />
+                                            <Route path="/universities" element={<UniversitiesPage onOpenModal={openModal} />} />
+                                            <Route path="/programs" element={<ProgramsPage onOpenModal={openModal} />} />
+                                            <Route path="/blog" element={<BlogPage onOpenModal={openModal} />} />
+                                            <Route path="/university/:id" element={<UniversityDetail onOpenModal={openModal} />} />
+                                            <Route path="/blog/:id" element={<BlogPost onOpenModal={openModal} />} />
+                                        </Routes>
+                                    </main>
+                                    <Footer />
+                                </>
+                            } />
+                        </Routes>
+
+                        <ConsultationModal isOpen={isModalOpen} onClose={closeModal} />
+                    </div>
+                </Router>
+            </AuthProvider>
+        </LanguageProvider>
     );
 }
 
