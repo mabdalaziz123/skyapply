@@ -61,6 +61,7 @@ export const translations = {
         uni_not_found: 'عذراً، لم يتم العثور على الجامعة',
         uni_not_found_sub: 'قد يكون الرابط غير صحيح أو تم مسح الجامعة.',
         uni_loading: 'جاري تحميل تفاصيل الجامعة...',
+        uni_website: 'موقع الجامعة',
 
         // Blog
         blog_read_more: 'اقرأ المزيد',
@@ -202,6 +203,7 @@ export const translations = {
         uni_not_found: 'Sorry, University Not Found',
         uni_not_found_sub: 'The link may be incorrect or the university has been removed.',
         uni_loading: 'Loading university details...',
+        uni_website: 'University Website',
 
         // Blog
         blog_read_more: 'Read More',
@@ -343,6 +345,7 @@ export const translations = {
         uni_not_found: 'Üzgünüz, Üniversite Bulunamadı',
         uni_not_found_sub: 'Bağlantı hatalı olabilir veya üniversite kaldırılmış olabilir.',
         uni_loading: 'Üniversite detayları yükleniyor...',
+        uni_website: 'Üniversite Web Sitesi',
 
         // Blog
         blog_read_more: 'Devamını Oku',

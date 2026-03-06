@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS universities (
     name_en TEXT,
     name_tr TEXT,
     country TEXT,
+    country_en TEXT,
+    country_tr TEXT,
     city TEXT,
     city_en TEXT,
     city_tr TEXT,
@@ -17,6 +19,8 @@ CREATE TABLE IF NOT EXISTS universities (
     ranking TEXT,
     students TEXT,
     type TEXT,
+    type_en TEXT,
+    type_tr TEXT,
     founded TEXT,
     website_url TEXT,
     features JSONB DEFAULT '[]',
@@ -40,9 +44,15 @@ CREATE TABLE IF NOT EXISTS branches (
     name_en TEXT,
     name_tr TEXT,
     language TEXT,
+    language_en TEXT,
+    language_tr TEXT,
     price TEXT,
     duration TEXT,
+    duration_en TEXT,
+    duration_tr TEXT,
     degree TEXT,
+    degree_en TEXT,
+    degree_tr TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -76,6 +86,10 @@ ALTER TABLE universities ADD COLUMN IF NOT EXISTS description_en TEXT;
 ALTER TABLE universities ADD COLUMN IF NOT EXISTS description_tr TEXT;
 ALTER TABLE universities ADD COLUMN IF NOT EXISTS city_en TEXT;
 ALTER TABLE universities ADD COLUMN IF NOT EXISTS city_tr TEXT;
+ALTER TABLE universities ADD COLUMN IF NOT EXISTS country_en TEXT;
+ALTER TABLE universities ADD COLUMN IF NOT EXISTS country_tr TEXT;
+ALTER TABLE universities ADD COLUMN IF NOT EXISTS type_en TEXT;
+ALTER TABLE universities ADD COLUMN IF NOT EXISTS type_tr TEXT;
 
 ALTER TABLE colleges ADD COLUMN IF NOT EXISTS name_en TEXT;
 ALTER TABLE colleges ADD COLUMN IF NOT EXISTS name_tr TEXT;
@@ -87,3 +101,12 @@ ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS title_en TEXT;
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS title_tr TEXT;
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS content_en TEXT;
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS content_tr TEXT;
+
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS name_en TEXT;
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS name_tr TEXT;
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS degree_en TEXT;
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS degree_tr TEXT;
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS language_en TEXT;
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS language_tr TEXT;
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS duration_en TEXT;
+ALTER TABLE branches ADD COLUMN IF NOT EXISTS duration_tr TEXT;

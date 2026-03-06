@@ -14,7 +14,8 @@ import {
     Loader2,
     ChevronDown,
     Clock,
-    DollarSign
+    DollarSign,
+    ExternalLink
 } from 'lucide-react';
 import CTA from '../components/CTA';
 import { db } from '../lib/db';
@@ -65,8 +66,6 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
     const uniName = getField(university, 'name');
     const uniDesc = getField(university, 'description');
     const uniCity = getField(university, 'city');
-    const uniCountry = getField(university, 'country');
-    const uniType = getField(university, 'type');
 
     return (
         <div className="pt-24 min-h-screen bg-slate-50 font-sans" dir={dir}>
@@ -77,7 +76,7 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                 <div className={`container mx-auto px-6 relative h-full flex flex-col justify-end pb-16 text-white ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
                         <div className={`flex items-center gap-2 mb-4 ${dir === 'rtl' ? 'justify-end' : 'justify-start'}`}>
-                            <span className="bg-brand-red px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg shadow-brand-red/20">{uniCountry}</span>
+                            <span className="bg-brand-red px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg shadow-brand-red/20">{getField(university, 'country')}</span>
                             <span className="bg-white/20 backdrop-blur px-4 py-1 rounded-full text-sm font-bold border border-white/10">{uniCity}</span>
                         </div>
                         <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight text-start">{uniName}</h1>
@@ -99,7 +98,7 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                             <div className={`flex items-center gap-2 ${dir === 'rtl' ? 'border-r border-white/20 pr-6' : 'border-l border-white/20 pl-6'}`}>
                                 <div className={dir === 'rtl' ? 'text-right' : 'text-left'}>
                                     <p className="text-white/60 text-xs font-bold">{t('uni_type')}</p>
-                                    <p className="font-extrabold text-lg">{uniType || t('private_university')}</p>
+                                    <p className="font-extrabold text-lg">{getField(university, 'type') || t('private_university')}</p>
                                 </div>
                                 <Building2 className="text-green-400" size={24} />
                             </div>
@@ -143,6 +142,23 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                         <div className="flex items-center gap-3 text-slate-500 font-bold text-sm">
                                             <span>{t('uni_colleges_count')}</span>
                                             <GraduationCap size={20} className="text-brand-red" />
+                                        </div>
+                                    </div>
+                                )}
+                                {university.website_url && (
+                                    <div className="flex items-center justify-between">
+                                        <a
+                                            href={university.website_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="font-extrabold text-brand-red hover:underline flex items-center gap-1"
+                                        >
+                                            {t('uni_website')}
+                                            <ExternalLink size={14} />
+                                        </a>
+                                        <div className="flex items-center gap-3 text-slate-500 font-bold text-sm">
+                                            <span>{t('uni_website')}</span>
+                                            <Globe size={20} className="text-brand-red" />
                                         </div>
                                     </div>
                                 )}
@@ -265,12 +281,12 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                                                     >
                                                                                         <td className="p-5 font-black text-brand-navy">{getField(branch, 'name')}</td>
                                                                                         <td className="p-5">
-                                                                                            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">{branch.degree || t('bachelor')}</span>
+                                                                                            <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">{getField(branch, 'degree') || t('bachelor')}</span>
                                                                                         </td>
                                                                                         <td className="p-5">
-                                                                                            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{branch.language}</span>
+                                                                                            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{getField(branch, 'language')}</span>
                                                                                         </td>
-                                                                                        <td className="p-5 text-slate-500 font-bold">{branch.duration}</td>
+                                                                                        <td className="p-5 text-slate-500 font-bold">{getField(branch, 'duration')}</td>
                                                                                         <td className="p-5">
                                                                                             <span className="text-brand-red font-black text-lg">{branch.price}</span>
                                                                                         </td>

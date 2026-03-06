@@ -9,9 +9,15 @@ interface Branch {
     name_en: string;
     name_tr: string;
     language: string;
+    language_en: string;
+    language_tr: string;
     price: string;
     duration: string;
+    duration_en: string;
+    duration_tr: string;
     degree: string;
+    degree_en: string;
+    degree_tr: string;
 }
 
 interface Faculty {
@@ -45,6 +51,30 @@ const LangTabs = ({ active, onChange }: { active: string; onChange: (l: string) 
     </div>
 );
 
+// Translation Maps
+const DEGREE_MAP: Record<string, { en: string, tr: string }> = {
+    'بكالوريوس': { en: 'Bachelor', tr: 'Lisans' },
+    'ماجستير مع أطروحة': { en: 'Master with Thesis', tr: 'Tezli Yüksek Lisans' },
+    'مدرسة مهنية': { en: 'Vocational School', tr: 'Meslek Yüksekokulu' },
+    'دكتوراه': { en: 'PhD', tr: 'Doktora' },
+    'ماجستير بدون أطروحة': { en: 'Master without Thesis', tr: 'Tezsiz Yüksek Lisans' },
+    'دكتوراه متكاملة': { en: 'Integrated PhD', tr: 'Bütünleşik Doktora' }
+};
+
+const LANGUAGE_MAP: Record<string, { en: string, tr: string }> = {
+    'الإنجليزية': { en: 'English', tr: 'İngilizce' },
+    'التركية': { en: 'Turkish', tr: 'Türkçe' },
+    'عربي + إنجليزي': { en: 'Arabic + English', tr: 'Arapça + İngilizce' },
+    'الفرنسية': { en: 'French', tr: 'Fransızca' }
+};
+
+const DURATION_MAP: Record<string, { en: string, tr: string }> = {
+    '4 سنوات': { en: '4 Years', tr: '4 Yıl' },
+    '5 سنوات': { en: '5 Years', tr: '5 Yıl' },
+    '6 سنوات': { en: '6 Years', tr: '6 Yıl' },
+    '2 سنة': { en: '2 Years', tr: '2 Yıl' }
+};
+
 const ManageFaculties = () => {
     const [universities, setUniversities] = useState<University[]>([]);
     const [selectedUni, setSelectedUni] = useState<string>('');
@@ -62,7 +92,11 @@ const ManageFaculties = () => {
     // Add Branch Form
     const [showBranchForm, setShowBranchForm] = useState<string | null>(null);
     const [branchData, setBranchData] = useState<Branch>({
-        name: '', name_en: '', name_tr: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس'
+        name: '', name_en: '', name_tr: '',
+        language: 'الإنجليزية', language_en: 'English', language_tr: 'İngilizce',
+        price: '',
+        duration: '4 سنوات', duration_en: '4 Years', duration_tr: '4 Yıl',
+        degree: 'بكالوريوس', degree_en: 'Bachelor', degree_tr: 'Lisans'
     });
     const [isSubmittingBranch, setIsSubmittingBranch] = useState(false);
 
@@ -116,7 +150,13 @@ const ManageFaculties = () => {
                     ? { ...f, branches: [...(f.branches || []), newBranch] }
                     : f
             ));
-            setBranchData({ name: '', name_en: '', name_tr: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' });
+            setBranchData({
+                name: '', name_en: '', name_tr: '',
+                language: 'الإنجليزية', language_en: 'English', language_tr: 'İngilizce',
+                price: '',
+                duration: '4 سنوات', duration_en: '4 Years', duration_tr: '4 Yıl',
+                degree: 'بكالوريوس', degree_en: 'Bachelor', degree_tr: 'Lisans'
+            });
             setShowBranchForm(null);
         } catch (err: any) {
             alert('فشل الحفظ: ' + err.message);
@@ -140,6 +180,9 @@ const ManageFaculties = () => {
 
     const facultyNameField = activeLangFaculty === 'ar' ? 'name' : activeLangFaculty === 'en' ? 'name_en' : 'name_tr';
     const branchNameField = activeLangBranch === 'ar' ? 'name' : activeLangBranch === 'en' ? 'name_en' : 'name_tr';
+    const branchDegreeField = activeLangBranch === 'ar' ? 'degree' : activeLangBranch === 'en' ? 'degree_en' : 'degree_tr';
+    const branchLanguageField = activeLangBranch === 'ar' ? 'language' : activeLangBranch === 'en' ? 'language_en' : 'language_tr';
+    const branchDurationField = activeLangBranch === 'ar' ? 'duration' : activeLangBranch === 'en' ? 'duration_en' : 'duration_tr';
 
     return (
         <div className="space-y-8 text-right font-sans">
@@ -295,11 +338,11 @@ const ManageFaculties = () => {
                                                                     <thead>
                                                                         <tr className="bg-slate-50 text-slate-500 text-sm">
                                                                             <th className="p-4 font-bold">حذف</th>
-                                                                            <th className="p-4 font-bold">المرحلة</th>
-                                                                            <th className="p-4 font-bold">مدة الدراسة</th>
-                                                                            <th className="p-4 font-bold">السعر السنوي</th>
-                                                                            <th className="p-4 font-bold">لغة الدراسة</th>
                                                                             <th className="p-4 font-bold">اسم الفرع / التخصص</th>
+                                                                            <th className="p-4 font-bold">لغة الدراسة</th>
+                                                                            <th className="p-4 font-bold">السعر السنوي</th>
+                                                                            <th className="p-4 font-bold">مدة الدراسة</th>
+                                                                            <th className="p-4 font-bold">المرحلة</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className="divide-y divide-slate-50 font-bold">
@@ -313,13 +356,24 @@ const ManageFaculties = () => {
                                                                                         <Trash2 size={15} />
                                                                                     </button>
                                                                                 </td>
-                                                                                <td className="p-4"><span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs">{branch.degree || 'بكالوريوس'}</span></td>
-                                                                                <td className="p-4 text-slate-500">{branch.duration}</td>
-                                                                                <td className="p-4 text-brand-red font-black">{branch.price}</td>
-                                                                                <td className="p-4 text-slate-500">{branch.language}</td>
-                                                                                <td className="p-4 font-black">
+                                                                                <td className="p-4">
                                                                                     <p>{branch.name}</p>
                                                                                     {branch.name_en && <p className="text-[10px] text-slate-400">{branch.name_en}</p>}
+                                                                                </td>
+                                                                                <td className="p-4 text-slate-500">
+                                                                                    <p>{branch.language}</p>
+                                                                                    {branch.language_en && <p className="text-[10px] text-slate-400">{branch.language_en}</p>}
+                                                                                </td>
+                                                                                <td className="p-4 text-brand-red font-black">{branch.price}</td>
+                                                                                <td className="p-4 text-slate-500">
+                                                                                    <p>{branch.duration}</p>
+                                                                                    {branch.duration_en && <p className="text-[10px] text-slate-400">{branch.duration_en}</p>}
+                                                                                </td>
+                                                                                <td className="p-4">
+                                                                                    <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs">
+                                                                                        {branch.degree || 'بكالوريوس'}
+                                                                                        {branch.degree_en && <span className="block text-[10px] opacity-70">{branch.degree_en}</span>}
+                                                                                    </span>
                                                                                 </td>
                                                                             </tr>
                                                                         ))}
@@ -362,32 +416,74 @@ const ManageFaculties = () => {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-1">
-                                                                        <label className="text-sm font-bold text-slate-600">المرحلة الدراسية</label>
-                                                                        <select
-                                                                            value={branchData.degree}
-                                                                            onChange={e => setBranchData({ ...branchData, degree: e.target.value })}
-                                                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none"
-                                                                        >
-                                                                            <option>بكالوريوس</option>
-                                                                            <option>ماجستير مع أطروحة</option>
-                                                                            <option>مدرسة مهنية</option>
-                                                                            <option>دكتوراه</option>
-                                                                            <option>ماجستير بدون أطروحة</option>
-                                                                            <option>دكتوراه متكاملة</option>
-                                                                        </select>
+                                                                        <label className="text-sm font-bold text-slate-600">
+                                                                            المرحلة الدراسية {activeLangBranch === 'en' ? '(EN)' : activeLangBranch === 'tr' ? '(TR)' : '(AR)'}
+                                                                        </label>
+                                                                        {activeLangBranch === 'ar' ? (
+                                                                            <select
+                                                                                value={(branchData as any)[branchDegreeField]}
+                                                                                onChange={e => {
+                                                                                    const val = e.target.value;
+                                                                                    const mapping = DEGREE_MAP[val];
+                                                                                    setBranchData({
+                                                                                        ...branchData,
+                                                                                        degree: val,
+                                                                                        degree_en: mapping?.en || branchData.degree_en,
+                                                                                        degree_tr: mapping?.tr || branchData.degree_tr
+                                                                                    });
+                                                                                }}
+                                                                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none"
+                                                                            >
+                                                                                <option>بكالوريوس</option>
+                                                                                <option>ماجستير مع أطروحة</option>
+                                                                                <option>مدرسة مهنية</option>
+                                                                                <option>دكتوراه</option>
+                                                                                <option>ماجستير بدون أطروحة</option>
+                                                                                <option>دكتوراه متكاملة</option>
+                                                                            </select>
+                                                                        ) : (
+                                                                            <input
+                                                                                type="text"
+                                                                                value={(branchData as any)[branchDegreeField]}
+                                                                                onChange={e => setBranchData({ ...branchData, [branchDegreeField]: e.target.value })}
+                                                                                placeholder={activeLangBranch === 'en' ? 'Bachelor' : 'Lisans'}
+                                                                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none focus:border-brand-red transition-colors"
+                                                                            />
+                                                                        )}
                                                                     </div>
                                                                     <div className="space-y-1">
-                                                                        <label className="text-sm font-bold text-slate-600">لغة الدراسة</label>
-                                                                        <select
-                                                                            value={branchData.language}
-                                                                            onChange={e => setBranchData({ ...branchData, language: e.target.value })}
-                                                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none"
-                                                                        >
-                                                                            <option>الإنجليزية</option>
-                                                                            <option>التركية</option>
-                                                                            <option>عربي + إنجليزي</option>
-                                                                            <option>الفرنسية</option>
-                                                                        </select>
+                                                                        <label className="text-sm font-bold text-slate-600">
+                                                                            لغة الدراسة {activeLangBranch === 'en' ? '(EN)' : activeLangBranch === 'tr' ? '(TR)' : '(AR)'}
+                                                                        </label>
+                                                                        {activeLangBranch === 'ar' ? (
+                                                                            <select
+                                                                                value={(branchData as any)[branchLanguageField]}
+                                                                                onChange={e => {
+                                                                                    const val = e.target.value;
+                                                                                    const mapping = LANGUAGE_MAP[val];
+                                                                                    setBranchData({
+                                                                                        ...branchData,
+                                                                                        language: val,
+                                                                                        language_en: mapping?.en || branchData.language_en,
+                                                                                        language_tr: mapping?.tr || branchData.language_tr
+                                                                                    });
+                                                                                }}
+                                                                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none"
+                                                                            >
+                                                                                <option>الإنجليزية</option>
+                                                                                <option>التركية</option>
+                                                                                <option>عربي + إنجليزي</option>
+                                                                                <option>الفرنسية</option>
+                                                                            </select>
+                                                                        ) : (
+                                                                            <input
+                                                                                type="text"
+                                                                                value={(branchData as any)[branchLanguageField]}
+                                                                                onChange={e => setBranchData({ ...branchData, [branchLanguageField]: e.target.value })}
+                                                                                placeholder={activeLangBranch === 'en' ? 'English' : 'Türkçe'}
+                                                                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none focus:border-brand-red transition-colors"
+                                                                            />
+                                                                        )}
                                                                     </div>
                                                                     <div className="space-y-1">
                                                                         <label className="text-sm font-bold text-slate-600">السعر السنوي</label>
@@ -401,17 +497,38 @@ const ManageFaculties = () => {
                                                                         />
                                                                     </div>
                                                                     <div className="space-y-1">
-                                                                        <label className="text-sm font-bold text-slate-600">مدة الدراسة</label>
-                                                                        <select
-                                                                            value={branchData.duration}
-                                                                            onChange={e => setBranchData({ ...branchData, duration: e.target.value })}
-                                                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none"
-                                                                        >
-                                                                            <option>4 سنوات</option>
-                                                                            <option>5 سنوات</option>
-                                                                            <option>6 سنوات</option>
-                                                                            <option>2 سنة</option>
-                                                                        </select>
+                                                                        <label className="text-sm font-bold text-slate-600">
+                                                                            مدة الدراسة {activeLangBranch === 'en' ? '(EN)' : activeLangBranch === 'tr' ? '(TR)' : '(AR)'}
+                                                                        </label>
+                                                                        {activeLangBranch === 'ar' ? (
+                                                                            <select
+                                                                                value={(branchData as any)[branchDurationField]}
+                                                                                onChange={e => {
+                                                                                    const val = e.target.value;
+                                                                                    const mapping = DURATION_MAP[val];
+                                                                                    setBranchData({
+                                                                                        ...branchData,
+                                                                                        duration: val,
+                                                                                        duration_en: mapping?.en || branchData.duration_en,
+                                                                                        duration_tr: mapping?.tr || branchData.duration_tr
+                                                                                    });
+                                                                                }}
+                                                                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none"
+                                                                            >
+                                                                                <option>4 سنوات</option>
+                                                                                <option>5 سنوات</option>
+                                                                                <option>6 سنوات</option>
+                                                                                <option>2 سنة</option>
+                                                                            </select>
+                                                                        ) : (
+                                                                            <input
+                                                                                type="text"
+                                                                                value={(branchData as any)[branchDurationField]}
+                                                                                onChange={e => setBranchData({ ...branchData, [branchDurationField]: e.target.value })}
+                                                                                placeholder={activeLangBranch === 'en' ? '4 Years' : '4 Yıl'}
+                                                                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none focus:border-brand-red transition-colors"
+                                                                            />
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex gap-3 justify-start">
@@ -427,7 +544,15 @@ const ManageFaculties = () => {
                                                             </motion.form>
                                                         ) : (
                                                             <button
-                                                                onClick={() => { setShowBranchForm(faculty.id); setBranchData({ name: '', name_en: '', name_tr: '', language: 'الإنجليزية', price: '', duration: '4 سنوات', degree: 'بكالوريوس' }); }}
+                                                                onClick={() => {
+                                                                    setShowBranchForm(faculty.id); setBranchData({
+                                                                        name: '', name_en: '', name_tr: '',
+                                                                        language: 'الإنجليزية', language_en: 'English', language_tr: 'İngilizce',
+                                                                        price: '',
+                                                                        duration: '4 سنوات', duration_en: '4 Years', duration_tr: '4 Yıl',
+                                                                        degree: 'بكالوريوس', degree_en: 'Bachelor', degree_tr: 'Lisans'
+                                                                    });
+                                                                }}
                                                                 className="flex items-center gap-2 text-brand-red font-bold text-sm hover:text-red-700 transition-colors mr-auto"
                                                             >
                                                                 <Plus size={16} /> إضافة فرع / تخصص

@@ -201,16 +201,27 @@ app.post('/api/universities', requireAuth, async (req, res) => {
   try {
     const {
       name, name_en, name_tr,
-      country, city, city_en, city_tr,
+      country, country_en, country_tr,
+      city, city_en, city_tr,
       description, description_en, description_tr,
-      image, logo, ranking, students, type, founded, website_url, features
+      image, logo, ranking, students,
+      type, type_en, type_tr,
+      founded, website_url, features
     } = req.body;
     if (!name) return res.status(400).json({ error: 'University name is required' });
     const { rows } = await pool.query(
       `INSERT INTO universities
-        (name, name_en, name_tr, country, city, city_en, city_tr, description, description_en, description_tr, image, logo, ranking, students, type, founded, website_url, features)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) RETURNING *`,
-      [name, name_en, name_tr, country, city, city_en, city_tr, description, description_en, description_tr, image, logo, ranking, students, type, founded, website_url, JSON.stringify(features || [])]
+        (name, name_en, name_tr, country, country_en, country_tr, city, city_en, city_tr, description, description_en, description_tr, image, logo, ranking, students, type, type_en, type_tr, founded, website_url, features)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22) RETURNING *`,
+      [
+        name, name_en, name_tr,
+        country, country_en, country_tr,
+        city, city_en, city_tr,
+        description, description_en, description_tr,
+        image, logo, ranking, students,
+        type, type_en, type_tr,
+        founded, website_url, JSON.stringify(features || [])
+      ]
     );
     res.status(201).json(rows[0]);
   } catch (err: any) { console.error(err); res.status(500).json({ error: 'Internal server error', details: err.message }); }
@@ -221,19 +232,34 @@ app.put('/api/universities/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     const {
       name, name_en, name_tr,
-      country, city, city_en, city_tr,
+      country, country_en, country_tr,
+      city, city_en, city_tr,
       description, description_en, description_tr,
-      image, logo, ranking, students, type, founded, website_url, features
+      image, logo, ranking, students,
+      type, type_en, type_tr,
+      founded, website_url, features
     } = req.body;
     const { rows } = await pool.query(
       `UPDATE universities SET
         name=$1, name_en=$2, name_tr=$3,
-        country=$4, city=$5, city_en=$6, city_tr=$7,
-        description=$8, description_en=$9, description_tr=$10,
-        image=$11, logo=$12, ranking=$13, students=$14, type=$15, founded=$16, website_url=$17, features=$18,
+        country=$4, country_en=$5, country_tr=$6,
+        city=$7, city_en=$8, city_tr=$9,
+        description=$10, description_en=$11, description_tr=$12,
+        image=$13, logo=$14, ranking=$15, students=$16,
+        type=$17, type_en=$18, type_tr=$19,
+        founded=$20, website_url=$21, features=$22,
         updated_at=CURRENT_TIMESTAMP
-       WHERE id=$19 RETURNING *`,
-      [name, name_en, name_tr, country, city, city_en, city_tr, description, description_en, description_tr, image, logo, ranking, students, type, founded, website_url, JSON.stringify(features || []), id]
+       WHERE id=$23 RETURNING *`,
+      [
+        name, name_en, name_tr,
+        country, country_en, country_tr,
+        city, city_en, city_tr,
+        description, description_en, description_tr,
+        image, logo, ranking, students,
+        type, type_en, type_tr,
+        founded, website_url, JSON.stringify(features || []),
+        id
+      ]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'University not found' });
     res.json(rows[0]);
@@ -311,10 +337,24 @@ app.get('/api/branches', async (_req, res) => {
 
 app.post('/api/branches', requireAuth, async (req, res) => {
   try {
-    const { faculty_id, name, name_en, name_tr, language, price, duration, degree } = req.body;
+    const {
+      faculty_id, name, name_en, name_tr,
+      language, language_en, language_tr,
+      price,
+      duration, duration_en, duration_tr,
+      degree, degree_en, degree_tr
+    } = req.body;
     const { rows } = await pool.query(
-      'INSERT INTO branches (faculty_id, name, name_en, name_tr, language, price, duration, degree) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',
-      [faculty_id, name, name_en || null, name_tr || null, language, price, duration, degree]
+      `INSERT INTO branches 
+        (faculty_id, name, name_en, name_tr, language, language_en, language_tr, price, duration, duration_en, duration_tr, degree, degree_en, degree_tr) 
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+      [
+        faculty_id, name, name_en || null, name_tr || null,
+        language, language_en || null, language_tr || null,
+        price,
+        duration, duration_en || null, duration_tr || null,
+        degree, degree_en || null, degree_tr || null
+      ]
     );
     res.status(201).json(rows[0]);
   } catch (err) { console.error(err); res.status(500).json({ error: 'Internal server error' }); }

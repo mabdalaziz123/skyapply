@@ -30,6 +30,7 @@ const ManageBlog = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [activeLang, setActiveLang] = useState('ar');
+    const [editingId, setEditingId] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
@@ -75,8 +76,13 @@ const ManageBlog = () => {
         if (!formData.image) { alert('الرجاء رفع صورة للمقال'); return; }
         setIsSubmitting(true);
         try {
-            await db.blog.add({ ...formData, date: new Date().toLocaleDateString('ar-SA') });
+            if (editingId) {
+                await db.blog.update(editingId, { ...formData });
+            } else {
+                await db.blog.add({ ...formData, date: new Date().toLocaleDateString('ar-SA') });
+            }
             setIsAddingMode(false);
+            setEditingId(null);
             setFormData({ title: '', title_en: '', title_tr: '', author: '', content: '', content_en: '', content_tr: '', image: '', read_time: '5 دقائق' });
             fetchPosts();
         } catch (error: any) {
@@ -84,6 +90,29 @@ const ManageBlog = () => {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleEdit = (post: any) => {
+        setFormData({
+            title: post.title || '',
+            title_en: post.title_en || '',
+            title_tr: post.title_tr || '',
+            author: post.author || '',
+            content: post.content || '',
+            content_en: post.content_en || '',
+            content_tr: post.content_tr || '',
+            image: post.image || '',
+            read_time: post.read_time || '5 دقائق'
+        });
+        setEditingId(post.id);
+        setIsAddingMode(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancel = () => {
+        setIsAddingMode(false);
+        setEditingId(null);
+        setFormData({ title: '', title_en: '', title_tr: '', author: '', content: '', content_en: '', content_tr: '', image: '', read_time: '5 دقائق' });
     };
 
     const handleDelete = async (id: string) => {
@@ -102,7 +131,7 @@ const ManageBlog = () => {
     return (
         <div className="space-y-8 text-right font-sans">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <button onClick={() => setIsAddingMode(true)} className="btn-primary flex items-center gap-2">
+                <button onClick={() => { handleCancel(); setIsAddingMode(true); }} className="btn-primary flex items-center gap-2">
                     كتابة مقال جديد <Plus size={18} />
                 </button>
                 <div>
@@ -120,8 +149,10 @@ const ManageBlog = () => {
                         className="bg-white rounded-[40px] p-10 shadow-2xl border border-brand-red/10"
                     >
                         <div className="flex items-center justify-between mb-10 border-b pb-6">
-                            <button onClick={() => setIsAddingMode(false)} className="text-slate-400 hover:text-brand-navy font-bold">إغلاق المحرر</button>
-                            <h3 className="text-2xl font-black text-brand-navy">محرر المقالات</h3>
+                            <button onClick={handleCancel} className="text-slate-400 hover:text-brand-navy font-bold">إغلاق المحرر</button>
+                            <h3 className="text-2xl font-black text-brand-navy">
+                                {editingId ? 'تعديل المقال' : 'محرر المقالات'}
+                            </h3>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-8">
@@ -203,7 +234,7 @@ const ManageBlog = () => {
                                     disabled={isSubmitting || isUploading} type="submit"
                                     className="btn-primary flex-1 py-4 text-lg shadow-xl shadow-brand-red/20 flex items-center justify-center gap-3"
                                 >
-                                    {isSubmitting ? <Loader2 className="animate-spin" /> : 'نشر المقال الآن'}
+                                    {isSubmitting ? <Loader2 className="animate-spin" /> : editingId ? 'تحديث المقال' : 'نشر المقال الآن'}
                                 </button>
                             </div>
                         </form>
@@ -223,7 +254,7 @@ const ManageBlog = () => {
                                 <button onClick={() => handleDelete(post.id)} className="p-3 text-slate-400 hover:text-brand-red hover:bg-red-50 rounded-xl transition-all">
                                     <Trash2 size={20} />
                                 </button>
-                                <button className="p-3 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-all"><Edit2 size={20} /></button>
+                                <button onClick={() => handleEdit(post)} className="p-3 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-all"><Edit2 size={20} /></button>
                                 <Link to={`/blog/${post.id}`} className="p-3 text-slate-400 hover:text-brand-navy hover:bg-slate-100 rounded-xl transition-all">
                                     <Eye size={20} />
                                 </Link>
