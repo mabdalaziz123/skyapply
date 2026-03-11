@@ -80,7 +80,7 @@ export const db = {
             if (!response.ok) throw new Error('Failed to fetch branches');
             return response.json();
         },
-        async add(branch: { faculty_id: string; name: string; language: string; price: string; duration: string; degree: string }) {
+        async add(branch: { faculty_id: string; name: string; language: string; duration: string; degree: string;[key: string]: any }) {
             const response = await fetch(`${API_URL}/branches`, {
                 method: 'POST',
                 headers: {

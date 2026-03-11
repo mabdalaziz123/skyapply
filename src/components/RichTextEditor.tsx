@@ -5,6 +5,8 @@ import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
+import Image from '@tiptap/extension-image';
+import { db } from '../lib/db';
 import {
   Bold,
   Italic,
@@ -21,7 +23,9 @@ import {
   Type,
   Palette,
   ChevronDown,
-  Eraser
+  Eraser,
+  Image as ImageIcon,
+  Loader2
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { Extension } from '@tiptap/core';
@@ -69,6 +73,37 @@ const FontSize = Extension.create({
           .run();
       },
     } as any;
+  },
+});
+
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: '100%',
+        renderHTML: attributes => {
+          if (!attributes.width) return {};
+          return { style: `width: ${attributes.width}; height: auto;` };
+        },
+      },
+      align: {
+        default: 'center',
+        renderHTML: attributes => {
+          if (!attributes.align) return {};
+          if (attributes.align === 'center') return { style: 'display: block; margin-left: auto; margin-right: auto;' };
+          if (attributes.align === 'left') return { style: 'float: left; margin-right: 1.5rem; margin-bottom: 1rem;' };
+          if (attributes.align === 'right') return { style: 'float: right; margin-left: 1.5rem; margin-bottom: 1rem;' };
+          return {};
+        },
+      },
+      class: {
+        default: 'rounded-xl shadow-sm border border-slate-100',
+        renderHTML: attributes => {
+          return { class: attributes.class };
+        }
+      }
+    };
   },
 });
 
@@ -133,6 +168,27 @@ const MenuBar = ({ editor }: { editor: any }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const url = await db.storage.uploadImage(file);
+      editor.chain().focus().setImage({ src: url }).run();
+    } catch (error: any) {
+      console.error('Image upload failed', error);
+      alert('فشل رفع الصورة: ' + (error.message || 'خطأ غير معروف'));
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   if (!editor) {
     return null;
   }
@@ -268,7 +324,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         </button>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 border-l border-slate-200 pl-1 ml-1 rtl:border-l-0 rtl:border-r rtl:pl-0 rtl:pr-1 rtl:ml-0 rtl:mr-1">
         <button
           type="button"
           onClick={setLink}
@@ -284,6 +340,23 @@ const MenuBar = ({ editor }: { editor: any }) => {
           title="اقتباس"
         >
           <Quote size={16} />
+        </button>
+
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleImageUpload}
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="p-1.5 hover:bg-slate-200 rounded text-slate-600 transition-colors disabled:opacity-50"
+          title="إدراج صورة"
+        >
+          {isUploading ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
         </button>
       </div>
 
@@ -370,6 +443,62 @@ const MenuBar = ({ editor }: { editor: any }) => {
           <Eraser size={16} />
         </button>
       </div>
+
+      {/* Image Controls - Only shown when an image is selected */}
+      {editor.isActive('image') && (
+        <div className="w-full mt-2 flex flex-wrap items-center gap-2 p-2 bg-slate-100 rounded-lg border border-slate-200 rtl:mr-0 rtl:ml-auto">
+          <span className="text-xs font-bold text-slate-500 mr-2 rtl:ml-2 rtl:mr-0">إعدادات الصورة:</span>
+
+          <div className="flex items-center bg-white rounded border border-slate-200 overflow-hidden text-xs font-bold">
+            <button
+              onClick={() => editor.chain().focus().updateAttributes('image', { width: '25%' }).run()}
+              className={`px-2 py-1 transition-colors ${editor.getAttributes('image').width === '25%' ? 'bg-brand-red/10 text-brand-red' : 'hover:bg-slate-50'}`}
+            >
+              25%
+            </button>
+            <div className="w-px h-4 bg-slate-200"></div>
+            <button
+              onClick={() => editor.chain().focus().updateAttributes('image', { width: '50%' }).run()}
+              className={`px-2 py-1 transition-colors ${editor.getAttributes('image').width === '50%' ? 'bg-brand-red/10 text-brand-red' : 'hover:bg-slate-50'}`}
+            >
+              50%
+            </button>
+            <div className="w-px h-4 bg-slate-200"></div>
+            <button
+              onClick={() => editor.chain().focus().updateAttributes('image', { width: '100%' }).run()}
+              className={`px-2 py-1 transition-colors ${editor.getAttributes('image').width === '100%' ? 'bg-brand-red/10 text-brand-red' : 'hover:bg-slate-50'}`}
+            >
+              100%
+            </button>
+          </div>
+
+          <div className="flex items-center bg-white rounded border border-slate-200 overflow-hidden">
+            <button
+              onClick={() => editor.chain().focus().updateAttributes('image', { align: 'right' }).run()}
+              className={`p-1.5 transition-colors ${editor.getAttributes('image').align === 'right' ? 'bg-brand-red/10 text-brand-red' : 'hover:bg-slate-50'}`}
+              title="يمين النص"
+            >
+              <AlignRight size={14} />
+            </button>
+            <div className="w-px h-4 bg-slate-200"></div>
+            <button
+              onClick={() => editor.chain().focus().updateAttributes('image', { align: 'center' }).run()}
+              className={`p-1.5 transition-colors ${editor.getAttributes('image').align === 'center' ? 'bg-brand-red/10 text-brand-red' : 'hover:bg-slate-50'}`}
+              title="توسيط"
+            >
+              <AlignCenter size={14} />
+            </button>
+            <div className="w-px h-4 bg-slate-200"></div>
+            <button
+              onClick={() => editor.chain().focus().updateAttributes('image', { align: 'left' }).run()}
+              className={`p-1.5 transition-colors ${editor.getAttributes('image').align === 'left' ? 'bg-brand-red/10 text-brand-red' : 'hover:bg-slate-50'}`}
+              title="يسار النص"
+            >
+              <AlignLeft size={14} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -391,6 +520,7 @@ export default function RichTextEditor({ value, onChange }: Props) {
       TextStyle,
       Color,
       FontSize,
+      CustomImage,
     ],
     content: value,
     editorProps: {

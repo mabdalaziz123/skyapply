@@ -11,7 +11,6 @@ interface Branch {
     language: string;
     language_en: string;
     language_tr: string;
-    price: string;
     duration: string;
     duration_en: string;
     duration_tr: string;
@@ -94,7 +93,6 @@ const ManageFaculties = () => {
     const [branchData, setBranchData] = useState<Branch>({
         name: '', name_en: '', name_tr: '',
         language: 'الإنجليزية', language_en: 'English', language_tr: 'İngilizce',
-        price: '',
         duration: '4 سنوات', duration_en: '4 Years', duration_tr: '4 Yıl',
         degree: 'بكالوريوس', degree_en: 'Bachelor', degree_tr: 'Lisans'
     });
@@ -141,7 +139,7 @@ const ManageFaculties = () => {
 
     const handleAddBranch = async (e: React.FormEvent, facultyId: string) => {
         e.preventDefault();
-        if (!branchData.name.trim() || !branchData.price.trim()) return;
+        if (!branchData.name.trim()) return;
         setIsSubmittingBranch(true);
         try {
             const newBranch = await db.branches.add({ ...branchData, faculty_id: facultyId });
@@ -153,7 +151,6 @@ const ManageFaculties = () => {
             setBranchData({
                 name: '', name_en: '', name_tr: '',
                 language: 'الإنجليزية', language_en: 'English', language_tr: 'İngilizce',
-                price: '',
                 duration: '4 سنوات', duration_en: '4 Years', duration_tr: '4 Yıl',
                 degree: 'بكالوريوس', degree_en: 'Bachelor', degree_tr: 'Lisans'
             });
@@ -340,7 +337,6 @@ const ManageFaculties = () => {
                                                                             <th className="p-4 font-bold">حذف</th>
                                                                             <th className="p-4 font-bold">اسم الفرع / التخصص</th>
                                                                             <th className="p-4 font-bold">لغة الدراسة</th>
-                                                                            <th className="p-4 font-bold">السعر السنوي</th>
                                                                             <th className="p-4 font-bold">مدة الدراسة</th>
                                                                             <th className="p-4 font-bold">المرحلة</th>
                                                                         </tr>
@@ -364,7 +360,6 @@ const ManageFaculties = () => {
                                                                                     <p>{branch.language}</p>
                                                                                     {branch.language_en && <p className="text-[10px] text-slate-400">{branch.language_en}</p>}
                                                                                 </td>
-                                                                                <td className="p-4 text-brand-red font-black">{branch.price}</td>
                                                                                 <td className="p-4 text-slate-500">
                                                                                     <p>{branch.duration}</p>
                                                                                     {branch.duration_en && <p className="text-[10px] text-slate-400">{branch.duration_en}</p>}
@@ -486,17 +481,6 @@ const ManageFaculties = () => {
                                                                         )}
                                                                     </div>
                                                                     <div className="space-y-1">
-                                                                        <label className="text-sm font-bold text-slate-600">السعر السنوي</label>
-                                                                        <input
-                                                                            required
-                                                                            type="text"
-                                                                            value={branchData.price}
-                                                                            onChange={e => setBranchData({ ...branchData, price: e.target.value })}
-                                                                            placeholder="مثال: $5,000 / سنة"
-                                                                            className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-right font-bold outline-none focus:border-brand-red transition-colors"
-                                                                        />
-                                                                    </div>
-                                                                    <div className="space-y-1">
                                                                         <label className="text-sm font-bold text-slate-600">
                                                                             مدة الدراسة {activeLangBranch === 'en' ? '(EN)' : activeLangBranch === 'tr' ? '(TR)' : '(AR)'}
                                                                         </label>
@@ -548,7 +532,6 @@ const ManageFaculties = () => {
                                                                     setShowBranchForm(faculty.id); setBranchData({
                                                                         name: '', name_en: '', name_tr: '',
                                                                         language: 'الإنجليزية', language_en: 'English', language_tr: 'İngilizce',
-                                                                        price: '',
                                                                         duration: '4 سنوات', duration_en: '4 Years', duration_tr: '4 Yıl',
                                                                         degree: 'بكالوريوس', degree_en: 'Bachelor', degree_tr: 'Lisans'
                                                                     });

@@ -14,7 +14,6 @@ import {
     Loader2,
     ChevronDown,
     Clock,
-    DollarSign,
     ExternalLink
 } from 'lucide-react';
 import CTA from '../components/CTA';
@@ -265,9 +264,6 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                                                     <th className="p-5 font-bold">
                                                                                         <span className="flex items-center gap-1"><Clock size={14} />{t('uni_duration')}</span>
                                                                                     </th>
-                                                                                    <th className="p-5 font-bold">
-                                                                                        <span className="flex items-center gap-1"><DollarSign size={14} />{t('uni_annual_price')}</span>
-                                                                                    </th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody className="divide-y divide-slate-50">
@@ -287,9 +283,6 @@ const UniversityDetail = ({ onOpenModal }: { onOpenModal: () => void }) => {
                                                                                             <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">{getField(branch, 'language')}</span>
                                                                                         </td>
                                                                                         <td className="p-5 text-slate-500 font-bold">{getField(branch, 'duration')}</td>
-                                                                                        <td className="p-5">
-                                                                                            <span className="text-brand-red font-black text-lg">{branch.price}</span>
-                                                                                        </td>
                                                                                     </motion.tr>
                                                                                 ))}
                                                                             </tbody>

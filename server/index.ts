@@ -340,18 +340,16 @@ app.post('/api/branches', requireAuth, async (req, res) => {
     const {
       faculty_id, name, name_en, name_tr,
       language, language_en, language_tr,
-      price,
       duration, duration_en, duration_tr,
       degree, degree_en, degree_tr
     } = req.body;
     const { rows } = await pool.query(
       `INSERT INTO branches 
-        (faculty_id, name, name_en, name_tr, language, language_en, language_tr, price, duration, duration_en, duration_tr, degree, degree_en, degree_tr) 
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+        (faculty_id, name, name_en, name_tr, language, language_en, language_tr, duration, duration_en, duration_tr, degree, degree_en, degree_tr) 
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
       [
         faculty_id, name, name_en || null, name_tr || null,
         language, language_en || null, language_tr || null,
-        price,
         duration, duration_en || null, duration_tr || null,
         degree, degree_en || null, degree_tr || null
       ]

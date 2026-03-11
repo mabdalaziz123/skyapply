@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, MapPin, DollarSign, Clock, BookOpen, GraduationCap, Filter, X } from 'lucide-react';
+import { Search, MapPin, Clock, BookOpen, GraduationCap, Filter, X } from 'lucide-react';
 import { db } from '../lib/db';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -19,7 +19,6 @@ const ProgramsPage = ({ onOpenModal }: ProgramsPageProps) => {
     const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-    const [priceRange, setPriceRange] = useState<number>(20000);
 
     useEffect(() => {
         const fetchPrograms = async () => {
@@ -39,22 +38,18 @@ const ProgramsPage = ({ onOpenModal }: ProgramsPageProps) => {
         const degrees = new Set<string>();
         const languages = new Set<string>();
         const countries = new Set<string>();
-        let maxPrice = 5000;
 
         branches.forEach(branch => {
             if (branch.degree) degrees.add(branch.degree);
             if (branch.language) languages.add(branch.language);
             const country = branch.colleges?.universities?.country;
             if (country) countries.add(country);
-            const numericPrice = parseInt(branch.price?.replace(/\D/g, '') || '0');
-            if (numericPrice > maxPrice) maxPrice = numericPrice;
         });
 
         return {
             degrees: Array.from(degrees),
             languages: Array.from(languages),
-            countries: Array.from(countries),
-            maxAvailablePrice: maxPrice || 20000
+            countries: Array.from(countries)
         };
     }, [branches]);
 
@@ -65,11 +60,9 @@ const ProgramsPage = ({ onOpenModal }: ProgramsPageProps) => {
             const matchesDegree = selectedDegrees.length === 0 || selectedDegrees.includes(branch.degree);
             const matchesLanguage = selectedLanguages.length === 0 || selectedLanguages.includes(branch.language);
             const matchCountry = selectedCountries.length === 0 || selectedCountries.includes(branch.colleges?.universities?.country);
-            const numericPrice = parseInt(branch.price?.replace(/\D/g, '') || '0');
-            const matchesPrice = numericPrice <= priceRange;
-            return matchesSearch && matchesDegree && matchesLanguage && matchCountry && matchesPrice;
+            return matchesSearch && matchesDegree && matchesLanguage && matchCountry;
         });
-    }, [branches, searchTerm, selectedDegrees, selectedLanguages, selectedCountries, priceRange, getField]);
+    }, [branches, searchTerm, selectedDegrees, selectedLanguages, selectedCountries, getField]);
 
     const toggleFilter = (value: string, currentSelected: string[], setter: React.Dispatch<React.SetStateAction<string[]>>) => {
         if (currentSelected.includes(value)) {
@@ -186,18 +179,6 @@ const ProgramsPage = ({ onOpenModal }: ProgramsPageProps) => {
                                 </div>
                             )}
 
-                            {/* Price */}
-                            <div className="pb-2">
-                                <div className="flex justify-between items-center mb-3">
-                                    <h4 className="font-black text-brand-navy">{t('programs_price_label')}</h4>
-                                    <span className="text-brand-red font-bold">${priceRange}</span>
-                                </div>
-                                <input
-                                    type="range" min="0" max={filterOptions.maxAvailablePrice} step="100"
-                                    value={priceRange} onChange={(e) => setPriceRange(Number(e.target.value))}
-                                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-brand-red"
-                                />
-                            </div>
                         </div>
 
                         {/* Mobile Apply Button */}
@@ -231,7 +212,7 @@ const ProgramsPage = ({ onOpenModal }: ProgramsPageProps) => {
                                 <h3 className="text-xl font-black text-brand-navy mb-2">{t('programs_no_results')}</h3>
                                 <p className="text-slate-500">{t('programs_no_results_sub')}</p>
                                 <button
-                                    onClick={() => { setSearchTerm(''); setSelectedCountries([]); setSelectedDegrees([]); setSelectedLanguages([]); setPriceRange(filterOptions.maxAvailablePrice); }}
+                                    onClick={() => { setSearchTerm(''); setSelectedCountries([]); setSelectedDegrees([]); setSelectedLanguages([]); }}
                                     className="mt-6 text-brand-red font-bold hover:underline"
                                 >
                                     {t('programs_clear')}
@@ -278,10 +259,6 @@ const ProgramsPage = ({ onOpenModal }: ProgramsPageProps) => {
                                             </div>
 
                                             <div className={`flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 pt-4 md:pt-0 border-t md:border-t-0 ${dir === 'rtl' ? 'md:border-r md:pr-5' : 'md:border-l md:pl-5'} border-slate-100 shrink-0`}>
-                                                <div className={dir === 'rtl' ? 'text-right' : 'text-left'}>
-                                                    <p className="text-slate-400 text-xs font-bold mb-1">{t('programs_annual_price')}</p>
-                                                    <p className="font-black text-2xl text-brand-navy">{branch.price}</p>
-                                                </div>
                                                 <button
                                                     onClick={onOpenModal}
                                                     className="bg-white border-2 border-brand-red text-brand-red hover:bg-brand-red hover:text-white rounded-xl px-6 py-2.5 font-bold transition-colors"
